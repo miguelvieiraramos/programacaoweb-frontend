@@ -30,9 +30,9 @@ function App() {
             <button className="blue button"><Link to="/listar">Listar Usuário</Link></button>
             <button className="green button"><Link to="/criar-usuario">Criar Usuário</Link></button>
           </div>
-          
-          <Table users={users} setUsers={setUsers} />
-          
+          <Route path="/listar">
+            <Table users={users} setUsers={setUsers} />
+          </Route>
           <Route path="/criar-usuario">
             <CreateUserForm users={users} setUsers={setUsers} />
           </Route>

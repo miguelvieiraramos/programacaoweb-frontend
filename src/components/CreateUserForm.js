@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Usuario from './Usuario.js';
 import {ErrorMessage, Formik, Form, Field} from 'formik';
 import * as yup from 'yup';
 
@@ -23,7 +22,7 @@ function CreateUserForm({ users, setUsers }) {
     dataNascimento: yup.string().required('Data de Nascimento é um campo obrigatório.'),
   });
 
-  async function handleSubmit(values) {
+  async function handleSubmit(values, { resetForm }) {
     try {
       const response = await fetch('http://localhost:8080/usuario', {
           method: 'POST',
@@ -34,12 +33,12 @@ function CreateUserForm({ users, setUsers }) {
         }
       );
       const data = await response.json();
-      const newUsuario = new Usuario(data);
+      console.log(response.status)
       if (response.status === 200) {
-        users.push(newUsuario);
-        setUsers(users);
+        setUsers([...users, data]);
         setSuccessMessage(true);
         closeSuccessMessage();
+        resetForm();
       }
     } catch(e) {
       setErrorMessage(true);
