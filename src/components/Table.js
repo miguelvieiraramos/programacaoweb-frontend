@@ -62,7 +62,7 @@ function Table({ users, setUsers }) {
                 <td>{user.estadoCivil}</td>
                 <td>
                   <button className="red button" onClick={deleteUsuario.bind(this, user.id)}>Remover</button>
-                  <button className="ocean button"><Link to="/alterar-usuario/1">Alterar</Link></button>
+                  <button className="ocean button"><Link to={`/alterar-usuario/${user.id}`}>Alterar</Link></button>
                 </td>
               </tr>
             ))

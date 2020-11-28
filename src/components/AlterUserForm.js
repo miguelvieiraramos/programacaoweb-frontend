@@ -1,33 +1,86 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {ErrorMessage, Formik, Form, Field} from 'formik';
 import { useParams } from "react-router-dom";
 import * as yup from 'yup';
 
 function AlterUserForm({ users, setUsers }) {
+  const [successMessage, setSuccessMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(false);
   const { id } = useParams();
-
-  const initialValues = {
-    login: '',
-    nome: '',
+  const [initialValues, setInitialValues] = useState({
+    login: 'joao',
+    nomeCompleto: '',
     cpf: '',
     dataNascimento: '2000-02-02',
     sexo:  'Masculino',
     estadoCivil: 'Solteiro(a)'
   }
+);
+
+  useEffect(() => {
+    async function getUsuario() {
+      const response = await fetch(`http://localhost:8080/usuario/${id}`)
+      const data = await response.json();
+      if(response.status === 200) {
+        setInitialValues(data);
+      }
+    } 
+    getUsuario();
+  }, [id]);
 
   const validationSchema = yup.object().shape({
     login: yup.string().required('Login é um campo obrigatório.'),
-    nome: yup.string().required('Nome é um campo obrigatório.'),
+    nomeCompleto: yup.string().required('Nome é um campo obrigatório.'),
     cpf: yup.string().required('CPF é um campo obrigatório.'),
     dataNascimento: yup.string().required('Data de Nascimento é um campo obrigatório.'),
   });
 
-  function handleSubmit(values) {
-    alert(JSON.stringify(values))
+  async function handleSubmit(values) {
+    try {
+      const response = await fetch('http://localhost:8080/usuario', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(values)
+        }
+      );
+      const data = await response.json();
+      if (response.status === 200) {
+        alterarUsuario(data);
+        setSuccessMessage(true);
+        closeSuccessMessage();
+      }
+    } catch(e) {
+      setErrorMessage(true);
+      closeErrorMessage();
+    }
+  }
+
+  function alterarUsuario(usuarioAlterado) {
+    const index = users.findIndex(usuario => usuario.id === usuarioAlterado.id);
+    const novosUsuarios = [...users];
+    novosUsuarios[index] = usuarioAlterado;
+    setUsers(novosUsuarios);
+  }
+
+  function closeSuccessMessage() {
+    setTimeout(() => setSuccessMessage(false), 3000);
+  }
+
+  function closeErrorMessage() {
+    setTimeout(() => setErrorMessage(false), 3000);
   }
 
   return (
-    <Formik onSubmit={handleSubmit} initialValues={initialValues} validationSchema={validationSchema}>
+    <>
+    <div style={{opacity: successMessage ? "1" : "0" }} className="success info">
+    O usuário foi alterado com sucesso.
+    </div>
+    <div style={{opacity: errorMessage ? "1" : "0" }} className="error info">
+      Não foi possível alterar o usuário.
+    </div>
+    <Formik onSubmit={handleSubmit} initialValues={initialValues} validationSchema={validationSchema} enableReinitialize>
       <Form>
         <div className="title-group">
          <h2>Alterar Usuário { id }</h2>
@@ -43,8 +96,8 @@ function AlterUserForm({ users, setUsers }) {
           <div className="label-group">
             <label>Nome</label>
           </div>
-          <Field type="text" name="nome" />
-          <ErrorMessage component="span" name="nome" />
+          <Field type="text" name="nomeCompleto" />
+          <ErrorMessage component="span" name="nomeCompleto" />
         </div>
         <div className="form-group">
         <div className="label-group">
@@ -84,10 +137,11 @@ function AlterUserForm({ users, setUsers }) {
           <ErrorMessage component="span" name="estadoCivil" />
         </div>
         <div className="form-group">
-          <input type="submit" value="Criar"></input>
+          <input type="submit" value="Alterar"></input>
         </div>
       </Form>
     </Formik>
+    </>
   )
 }
 

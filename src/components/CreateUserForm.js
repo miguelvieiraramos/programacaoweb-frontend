@@ -22,28 +22,30 @@ function CreateUserForm({ users, setUsers }) {
     dataNascimento: yup.string().required('Data de Nascimento é um campo obrigatório.'),
   });
 
-  async function handleSubmit(values, { resetForm }) {
-    try {
-      const response = await fetch('http://localhost:8080/usuario', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(values)
+  function handleSubmit(values, { resetForm }) {
+    async function createUser() {
+      try {
+        const response = await fetch('http://localhost:8080/usuario', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(values)
+          }
+        );
+        const data = await response.json();
+        if (response.status === 200) {
+          setUsers([...users, data]);
+          setSuccessMessage(true);
+          closeSuccessMessage();
+          resetForm();
         }
-      );
-      const data = await response.json();
-      console.log(response.status)
-      if (response.status === 200) {
-        setUsers([...users, data]);
-        setSuccessMessage(true);
-        closeSuccessMessage();
-        resetForm();
+      } catch(e) {
+        setErrorMessage(true);
+        closeErrorMessage();
       }
-    } catch(e) {
-      setErrorMessage(true);
-      closeErrorMessage();
     }
+    createUser();
   }
 
   function closeSuccessMessage() {
