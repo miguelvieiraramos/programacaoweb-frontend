@@ -7,7 +7,7 @@ function Table({ users, setUsers }) {
 
   async function deleteUsuario(id) {
     try {
-      const response = await fetch(`http://localhost:8080/usuario/3`, { method: 'DELETE' });
+      const response = await fetch(`http://localhost:8080/usuario/${id}`, { method: 'DELETE' });
       if(response.status === 200) {
         const newUsers = users.filter(usuario => usuario.id !== id);
         setUsers(newUsers);
